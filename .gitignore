@@ -1,0 +1,63 @@
+# ── Secrets — NEVER commit these ─────────────────────────────────
+.env
+.env.local
+.env.production
+.env.*
+
+# ── Frontend (Node / Vite) ───────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# ── Backend (Python / Flask) ─────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+venv310
+venv310/
+venv*/
+backend/venv*/
+
+# ── ML Model Cache (large files — don't commit) ──────────────────
+.cache/
+huggingface/
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# ── Logs ─────────────────────────────────────────────────────────
+*.log
+logs/
+pip-log.txt
+
+# ── OS junk ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE / Editor ─────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ── Misc ─────────────────────────────────────────────────────────
+*.zip
+*.tar.gz
+coverage/
+.nyc_output/
