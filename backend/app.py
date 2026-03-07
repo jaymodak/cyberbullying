@@ -14,6 +14,14 @@ import io
 import smtplib
 from email.mime.text import MIMEText
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+GMAIL_USER = os.getenv("GMAIL_USER")
+GMAIL_PASS = os.getenv("GMAIL_PASS")
+
 # ─── Tesseract path (Windows) ────────────────────────────────────────────────
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -392,8 +400,7 @@ def extract_text_from_image():
 
 
 # ─── Email endpoint ───────────────────────────────────────────────────────────
-GMAIL_USER = "wgamerz247@gmail.com"
-GMAIL_PASS = "zszp eull huhf ommq"   # move to .env in production
+   # move to .env in production
 
 @app.route('/api/send-safety-email', methods=['POST'])
 def send_safety_email():
