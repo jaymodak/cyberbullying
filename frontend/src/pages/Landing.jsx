@@ -672,7 +672,7 @@ export default function Landing() {
               letterSpacing: "0.2em",
               boxShadow: "0 0 40px rgba(6,182,212,0.15)",
             }}>
-            ▶ LAUNCH SHIELDAI
+            ▶ LAUNCH CYBERSHIELD
           </button>
         </div>
       </section>
@@ -686,7 +686,7 @@ export default function Landing() {
           {" & "}
           <span style={{ color: "#06b6d4" }}>Jay Modak</span>
           {" · "}
-          <span>© {new Date().getFullYear()} ShieldAI</span>
+          <span>© {new Date().getFullYear()} Cybershield</span>
         </p>
       </footer>
     </div>

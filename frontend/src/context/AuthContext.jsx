@@ -2,31 +2,30 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+const FONT_SIZES = { small: "13px", medium: "15px", large: "18px" };
 
-  // Moved isDark here so ALL pages can read it via useAuth()
-  const [isDark, setIsDark] = useState(() => {
-    return localStorage.getItem("theme") !== "light";
-  });
+export function AuthProvider({ children }) {
+  const [user,     setUser]     = useState(null);
+  const [isAdmin,  setIsAdmin]  = useState(false);
+  const [isDark,   setIsDark]   = useState(() => localStorage.getItem("theme") !== "light");
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem("fontSize") || "medium");
 
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
+    localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark]);
 
+  useEffect(() => {
+    localStorage.setItem("fontSize", fontSize);
+    document.documentElement.style.fontSize = FONT_SIZES[fontSize];
+  }, [fontSize]);
+
+  const adminLogout = () => setIsAdmin(false);
+
   return (
-    <AuthContext.Provider value={{ user, setUser, isDark, setIsDark }}>
+    <AuthContext.Provider value={{ user, setUser, isAdmin, setIsAdmin, adminLogout, isDark, setIsDark, fontSize, setFontSize }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export function useAuth() { return useContext(AuthContext); }

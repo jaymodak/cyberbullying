@@ -73,7 +73,7 @@ export default function Videos() {
           <p style={{ color: "#06b6d4", fontSize: "0.7rem", letterSpacing: "0.15em", ...mono, marginBottom: "8px" }}>
             // VIDEO ARCHIVE
           </p>
-          <h1 style={{ ...bebas, fontSize: "clamp(3rem,8vw,6rem)", color: "#f1f5f9", letterSpacing: "0.05em", lineHeight: 1 }}>
+          <h1 style={{ ...bebas, fontSize: "clamp(3rem,8vw,6rem)", color: "#64748b", letterSpacing: "0.05em", lineHeight: 1 }}>
             AWARENESS <span style={{ color: "#06b6d4" }}>VIDEOS</span>
           </h1>
           <p style={{ color: "#334155", fontSize: "0.75rem", marginTop: "8px", ...mono }}>
@@ -86,7 +86,7 @@ export default function Videos() {
           {/* Search input */}
           <div className="relative">
             <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-              style={{ color: "#334155" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              style={{ color: "#64748b" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -95,7 +95,9 @@ export default function Videos() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="cyber-input w-full pl-11 pr-4 py-3"
-              style={{ fontSize: "0.75rem" }}
+              style={{ fontSize: "0.75rem",
+                    color: "#1e293b",
+              }}
             />
           </div>
 
@@ -120,7 +122,7 @@ export default function Videos() {
 
         {/* Results count */}
         <div className="reveal mb-6">
-          <p style={{ color: "#1e293b", ...mono, fontSize: "0.65rem", letterSpacing: "0.1em" }}>
+          <p style={{ color: "#64748b", ...mono, fontSize: "0.65rem", letterSpacing: "0.1em" }}>
             // SHOWING {filtered.length} OF {videos.length} VIDEOS
           </p>
         </div>

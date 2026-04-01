@@ -166,7 +166,7 @@ export default function Laws() {
           <p style={{ color: "#06b6d4", fontSize: "0.7rem", letterSpacing: "0.15em", ...mono, marginBottom: "8px" }}>
             // LEGAL DATABASE
           </p>
-          <h1 style={{ ...bebas, fontSize: "clamp(3rem,8vw,6rem)", color: "#f1f5f9", letterSpacing: "0.05em", lineHeight: 1 }}>
+          <h1 style={{ ...bebas, fontSize: "clamp(3rem,8vw,6rem)",color: "#64748b", letterSpacing: "0.05em", lineHeight: 1 }}>
             CYBER<span style={{ color: "#06b6d4" }}>LAWS</span>
           </h1>
           <p style={{ color: "#334155", fontSize: "0.75rem", marginTop: "8px", ...mono }}>
