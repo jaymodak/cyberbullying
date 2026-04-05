@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { darkTokens, lightTokens, useScrollReveal } from "../styles/cyber.jsx";
 import { HistoryPanel } from "../components/HistoryModal.jsx";
+import toast from "react-hot-toast";
 // ── Donut chart component ─────────────────────────────────────────────────────
 function DonutChart({ models, isDark }) {
   const t = isDark ? darkTokens : lightTokens;
@@ -320,6 +321,7 @@ export default function Home() {
     try {
       const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/ocr`, { method: "POST", body: fd });
       const data = await res.json();
+      toast.success("Analysis complete");
       if (!res.ok) throw new Error(data.error || "OCR failed");
       setExtractedText(data.text || ""); setOcrDone(true);
     } catch (err) { alert(`OCR failed: ${err.message}`); }
@@ -345,15 +347,49 @@ export default function Home() {
         modelName: key.replace(/_/g, " ").toUpperCase(), ...value,
       }));
       setResults({ models: modelsArray, finalScore: data.final_score, category: data.category, severity: data.severity, flaggedKeywords: data.flagged_keywords || [], analyzeText });
-
-      const highRisk = modelsArray.some(r => r.severity === "High");
-      if (user && highRisk) {
-        fetch(`${import.meta.env.VITE_API_URL}/api/send-safety-email`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email, name: user.name, text: analyzeText }),
-        }).catch(console.error);
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (user && !emailRegex.test(user.email)) {
+        toast.error("Invalid email address");
+        return;
       }
-    } catch (err) { alert(`Analysis failed: ${err.message}`); }
+      const highRisk = modelsArray.some(r => r.severity === "High");
+      if (!user && highRisk) {
+        toast.error("Please login to receive safety alerts");
+      }
+      if (!highRisk) {
+        toast("Content is safe — no email triggered", { icon: "✅" });
+      }
+
+      if (user && highRisk) {
+        const lastSent = localStorage.getItem("lastEmailTime");
+        const now = Date.now();
+
+        if (lastSent && now - lastSent < 60000) {
+          toast("Email already sent recently", { icon: "⏳" });
+          return;
+        }
+        localStorage.setItem("lastEmailTime", now);
+        
+        fetch(`${import.meta.env.VITE_API_URL}/api/send-safety-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: user.email,
+            name: user.name,
+            text: analyzeText
+          }),
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+          if (ok) {
+            toast.success("⚠ Safety email sent successfully");
+          } else {
+            toast.error(data.error || "Email failed");
+          }
+        })
+        .catch(() => toast.error("Email service unreachable"));
+          }
+      } catch (err) { toast.error(`Analysis failed: ${err.message}`); }
     finally { setLoading(false); }
   };
 
