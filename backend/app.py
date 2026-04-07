@@ -375,33 +375,33 @@ def send_safety_email():
 
         # ── Build MIME message ────────────────────────────────────────────────
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = "ShieldAI — Safety Warning"
-        msg["From"]    = f"ShieldAI Safety <{GMAIL_USER}>"
+        msg["Subject"] = "CyberShield — Safety Warning"
+        msg["From"]    = f"CyberShield Safety <{GMAIL_USER}>"
         msg["To"]      = email
 
         plain_body = f"""Hi {name},
 
-Our AI detected potentially harmful language in a message analyzed on ShieldAI:
+Our AI detected potentially harmful language in a message analyzed on CyberShield:
 
 "{text}"
 
 Please consider rewriting your message to be more respectful.
 
-— ShieldAI Safety System
+— CyverShield Safety System
 """
 
         html_body = f"""
 <html><body style="font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0;padding:32px;">
   <div style="max-width:560px;margin:auto;background:#1e293b;border-radius:12px;padding:32px;border:1px solid rgba(6,182,212,0.3);">
-    <h2 style="color:#06b6d4;margin-top:0;">⚠ ShieldAI Safety Warning</h2>
+    <h2 style="color:#06b6d4;margin-top:0;">⚠ CyberShield Safety Warning</h2>
     <p>Hi <strong>{name}</strong>,</p>
-    <p>Our AI detected potentially harmful language in a message you analyzed:</p>
+    <p>We detected potentially harmful language in a message you analyzed:</p>
     <blockquote style="border-left:3px solid #ef4444;padding:12px 16px;background:rgba(239,68,68,0.08);border-radius:4px;margin:16px 0;">
       <em style="color:#fca5a5;">"{text}"</em>
     </blockquote>
-    <p>Please consider rewriting your message to be more respectful and constructive.</p>
+    <p>Please consider reviewing your message.</p>
     <hr style="border-color:rgba(6,182,212,0.2);margin:24px 0;">
-    <p style="font-size:12px;color:#64748b;">— ShieldAI Safety System &nbsp;|&nbsp; Cyberbullying Detection Platform</p>
+    <p style="font-size:12px;color:#64748b;">— CyberShield Safety System &nbsp;|&nbsp; Cyberbullying Detection Platform</p>
   </div>
 </body></html>
 """

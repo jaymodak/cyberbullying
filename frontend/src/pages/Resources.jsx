@@ -1,11 +1,19 @@
-import { useScrollReveal, SectionHeader } from "../styles/cyber.jsx";
+import { useOutletContext } from "react-router-dom";
+import { useScrollReveal } from "../styles/cyber.jsx";
 
 export default function Resources() {
   useScrollReveal();
+  const { isDark } = useOutletContext();
 
   const mono  = { fontFamily: "'DM Mono', monospace" };
   const raj   = { fontFamily: "'Rajdhani', sans-serif" };
   const bebas = { fontFamily: "'Bebas Neue', sans-serif" };
+
+  // ── Adaptive text colours ─────────────────────────────────────────────────
+  const textBody     = isDark ? "#64748b" : "#1e293b";   // body / description text
+  const textSubtitle = isDark ? "#334155" : "#475569";   // page subtitle
+  const textItemName = isDark ? "#e2e8f0" : "#0f172a";   // card title
+  const textItemDesc = isDark ? "#475569" : "#334155";   // card description
 
   const categories = [
     {
@@ -66,7 +74,7 @@ export default function Resources() {
           <h1 style={{ ...bebas, fontSize: "clamp(3rem,8vw,6rem)", color: "#64748b", letterSpacing: "0.05em", lineHeight: 1 }}>
             CRISIS <span style={{ color: "#06b6d4" }}>RESOURCES</span>
           </h1>
-          <p style={{ color: "#334155", fontSize: "0.75rem", marginTop: "8px", ...mono }}>
+          <p style={{ color: textSubtitle, fontSize: "0.75rem", marginTop: "8px", ...mono }}>
             Verified helplines, reporting portals, and educational tools
           </p>
         </div>
@@ -78,7 +86,7 @@ export default function Resources() {
               <div className="w-px h-8" style={{ background: `linear-gradient(to bottom, ${cat.color}, transparent)` }} />
               <div>
                 <p style={{ color: cat.color, fontSize: "0.6rem", letterSpacing: "0.2em", ...mono }}>{cat.eyebrow}</p>
-                <h2 style={{ ...bebas, fontSize: "1.8rem", color: "#f1f5f9", letterSpacing: "0.08em", lineHeight: 1 }}>{cat.title}</h2>
+                <h2 style={{ ...bebas, fontSize: "1.8rem", color: isDark ? "#f1f5f9" : "#0f172a", letterSpacing: "0.08em", lineHeight: 1 }}>{cat.title}</h2>
               </div>
             </div>
 
@@ -92,9 +100,9 @@ export default function Resources() {
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <h3 style={{ color: "#e2e8f0", ...raj, fontWeight: 700, fontSize: "0.9rem", letterSpacing: "0.03em" }}>{item.name}</h3>
+                      <h3 style={{ color: textItemName, ...raj, fontWeight: 700, fontSize: "0.9rem", letterSpacing: "0.03em" }}>{item.name}</h3>
                     </div>
-                    <p style={{ color: "#475569", fontSize: "0.7rem", lineHeight: 1.6, ...mono }}>{item.desc}</p>
+                    <p style={{ color: textItemDesc, fontSize: "0.7rem", lineHeight: 1.6, ...mono }}>{item.desc}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2 shrink-0">
                     <span className="px-2 py-0.5 rounded text-xs"
@@ -115,7 +123,7 @@ export default function Resources() {
         <div className="reveal rounded p-6 text-center"
           style={{ border: "1px solid rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.04)" }}>
           <p style={{ color: "#ef4444", ...bebas, fontSize: "1.5rem", letterSpacing: "0.1em" }}>IN IMMEDIATE DANGER?</p>
-          <p style={{ color: "#64748b", ...mono, fontSize: "0.7rem", marginTop: "4px" }}>
+          <p style={{ color: textBody, ...mono, fontSize: "0.7rem", marginTop: "4px" }}>
             Call <span style={{ color: "#ef4444" }}>100</span> (Police) or{" "}
             <span style={{ color: "#ef4444" }}>1930</span> (Cyber Crime Helpline)
           </p>

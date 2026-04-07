@@ -1,13 +1,22 @@
 import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { useScrollReveal } from "../styles/cyber.jsx";
 
 export default function Laws() {
   useScrollReveal();
+  const { isDark } = useOutletContext();
   const [activeIndex, setActiveIndex] = useState(null);
 
   const mono  = { fontFamily: "'DM Mono', monospace" };
   const raj   = { fontFamily: "'Rajdhani', sans-serif" };
   const bebas = { fontFamily: "'Bebas Neue', sans-serif" };
+
+  // ── Adaptive text colours ─────────────────────────────────────────────────
+  const textBody    = isDark ? "#64748b" : "#1e293b";   // body / description text
+  const textCard    = isDark ? "#94a3b8" : "#0f172a";   // law name in card
+  const textWarning = isDark ? "#64748b" : "#334155";   // disclaimer text
+  const textFooter  = isDark ? "#1e293b" : "#334155";   // footer note
+  const textSubtitle= isDark ? "#334155" : "#475569";   // page subtitle
 
   const laws = [
     {
@@ -166,10 +175,10 @@ export default function Laws() {
           <p style={{ color: "#06b6d4", fontSize: "0.7rem", letterSpacing: "0.15em", ...mono, marginBottom: "8px" }}>
             // LEGAL DATABASE
           </p>
-          <h1 style={{ ...bebas, fontSize: "clamp(3rem,8vw,6rem)",color: "#64748b", letterSpacing: "0.05em", lineHeight: 1 }}>
+          <h1 style={{ ...bebas, fontSize: "clamp(3rem,8vw,6rem)", color: "#64748b", letterSpacing: "0.05em", lineHeight: 1 }}>
             CYBER<span style={{ color: "#06b6d4" }}>LAWS</span>
           </h1>
-          <p style={{ color: "#334155", fontSize: "0.75rem", marginTop: "8px", ...mono }}>
+          <p style={{ color: textSubtitle, fontSize: "0.75rem", marginTop: "8px", ...mono }}>
             International legislation on cyberbullying, online harassment, and digital safety
           </p>
         </div>
@@ -178,7 +187,7 @@ export default function Laws() {
         <div className="reveal mb-12 px-5 py-4 rounded flex items-start gap-4"
           style={{ border: "1px solid rgba(245,158,11,0.2)", background: "rgba(245,158,11,0.03)" }}>
           <span style={{ color: "#f59e0b", fontSize: "0.9rem" }}>⚠</span>
-          <p style={{ color: "#64748b", ...mono, fontSize: "0.65rem", lineHeight: 1.8 }}>
+          <p style={{ color: textWarning, ...mono, fontSize: "0.65rem", lineHeight: 1.8 }}>
             This information is provided for educational purposes only and does not constitute legal advice.
             Laws change frequently — consult a qualified legal professional for advice specific to your situation.
           </p>
@@ -220,7 +229,7 @@ export default function Laws() {
                           style={{ border: `1px solid ${country.color}44`, color: country.color, background: `${country.color}11`, ...mono, fontSize: "0.6rem", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>
                           {law.code}
                         </span>
-                        <span style={{ color: "#94a3b8", ...raj, fontWeight: 600, fontSize: "0.85rem", letterSpacing: "0.03em" }}>
+                        <span style={{ color: textCard, ...raj, fontWeight: 600, fontSize: "0.85rem", letterSpacing: "0.03em" }}>
                           {law.name}
                         </span>
                       </div>
@@ -238,11 +247,11 @@ export default function Laws() {
                       <div className="px-5 pb-5 space-y-3"
                         style={{ borderTop: `1px solid ${country.color}15` }}>
                         <div className="pt-4">
-                          <p style={{ color: "#64748b", ...mono, fontSize: "0.72rem", lineHeight: 1.8 }}>{law.desc}</p>
+                          <p style={{ color: textBody, ...mono, fontSize: "0.72rem", lineHeight: 1.8 }}>{law.desc}</p>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span style={{ color: "#334155", ...mono, fontSize: "0.6rem", letterSpacing: "0.1em" }}>PENALTY:</span>
+                            <span style={{ color: isDark ? "#334155" : "#475569", ...mono, fontSize: "0.6rem", letterSpacing: "0.1em" }}>PENALTY:</span>
                             <span style={{ color: "#ef4444", ...mono, fontSize: "0.65rem", fontWeight: 600 }}>{law.penalty}</span>
                           </div>
                           <a href={law.link} target="_blank" rel="noopener noreferrer"
@@ -266,7 +275,7 @@ export default function Laws() {
         {/* Footer note */}
         <div className="reveal rounded p-5 text-center"
           style={{ border: "1px solid rgba(6,182,212,0.1)", background: "rgba(6,182,212,0.02)" }}>
-          <p style={{ color: "#1e293b", ...mono, fontSize: "0.65rem", lineHeight: 1.8 }}>
+          <p style={{ color: textFooter, ...mono, fontSize: "0.65rem", lineHeight: 1.8 }}>
             // Laws updated as of 2024. For the most current information, always verify with official government sources.
           </p>
         </div>

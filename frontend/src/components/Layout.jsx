@@ -9,6 +9,198 @@ import { cyberStyles, CyberCursor, darkTokens, lightTokens } from "../styles/cyb
 const ADMIN_USER = "admin-cybd";
 const ADMIN_PASS = "cybd-ibsar";
 
+const DISCLAIMER_TEXT =
+  "By signing in, you confirm that you are 18 years or older, or have permission/supervision if under 18. " +
+  "This platform is intended for detecting and preventing cyberbullying. Results are automated and may not be " +
+  "fully accurate. Users are responsible for their content and must not misuse the system.";
+
+// ── Sign-In Gate ────────────────────────────────────────────────────────────
+function SignInGate({ isDark, onLoginSuccess }) {
+  const t = isDark ? darkTokens : lightTokens;
+  const [agreed, setAgreed] = useState(false);
+
+  const mono  = { fontFamily: "'DM Mono', monospace" };
+  const raj   = { fontFamily: "'Rajdhani', sans-serif" };
+  const bebas = { fontFamily: "'Bebas Neue', sans-serif" };
+
+  return (
+    <div style={{ background: t.bg, minHeight: "100vh", ...mono, transition: "background 0.35s ease" }}>
+      <style>{cyberStyles}</style>
+      <CyberCursor />
+
+      {/* Background grid + scanlines */}
+      <div className={`fixed inset-0 pointer-events-none z-0 ${t.gridClass}`} />
+      <div className={`fixed inset-0 pointer-events-none z-0 ${t.scanClass}`} />
+
+      {/* Ambient glow */}
+      <div className="fixed inset-0 pointer-events-none z-0"
+        style={{ background: "radial-gradient(ellipse 70% 60% at 30% 50%, rgba(6,182,212,0.05), transparent), radial-gradient(ellipse 50% 40% at 80% 60%, rgba(139,92,246,0.04), transparent)" }} />
+
+      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row">
+
+        {/* ── LEFT — Branding panel ──────────────────────────────────────── */}
+        <div className="hidden lg:flex flex-col justify-center items-start px-20 w-5/12 relative overflow-hidden"
+          style={{ borderRight: `1px solid ${t.border}` }}>
+
+          {/* Corner decoration */}
+          <div className="absolute top-8 left-8 w-10 h-10"
+            style={{ borderTop: `1px solid ${t.accent}`, borderLeft: `1px solid ${t.accent}`, opacity: 0.5 }} />
+          <div className="absolute bottom-8 right-8 w-10 h-10"
+            style={{ borderBottom: `1px solid ${t.accent}`, borderRight: `1px solid ${t.accent}`, opacity: 0.5 }} />
+
+          {/* Badge */}
+          <div className="mb-8 flex items-center gap-2">
+            <div className="w-8 h-8 rounded flex items-center justify-center"
+              style={{ border: `1px solid ${t.border}`, background: t.accentBg }}>
+              <span style={{ color: t.accent, fontSize: "0.9rem", fontWeight: 700 }}>C</span>
+            </div>
+            <span style={{ ...raj, fontWeight: 700, fontSize: "1.1rem", color: t.text, letterSpacing: "0.08em" }}>
+              CYBER<span style={{ color: t.accent }}>SHIELD</span>
+            </span>
+          </div>
+
+          {/* Main headline */}
+          <h1 style={{ ...bebas, fontSize: "clamp(3.5rem,5vw,5rem)", lineHeight: 0.95, letterSpacing: "0.03em", color: t.text, marginBottom: "20px" }}>
+            DETECT.<br />
+            <span style={{ color: t.accent }}>PROTECT.</span><br />
+            PREVENT.
+          </h1>
+
+          <p style={{ color: isDark ? "#475569" : "#475569", ...mono, fontSize: "0.72rem", lineHeight: 1.9, maxWidth: "320px", marginBottom: "40px" }}>
+            AI-powered cyberbullying detection using an ensemble of three transformer models — analysing text and screenshots in real time.
+          </p>
+
+          {/* Stats row */}
+          <div className="flex gap-8">
+            {[
+              { value: "3", label: "ML MODELS" },
+              { value: "99%", label: "ACCURACY" },
+              { value: "24/7", label: "DETECTION" },
+            ].map((s, i) => (
+              <div key={i}>
+                <div style={{ ...bebas, fontSize: "1.8rem", color: t.accent, lineHeight: 1 }}>{s.value}</div>
+                <div style={{ color: isDark ? "#334155" : "#64748b", fontSize: "0.55rem", letterSpacing: "0.15em", ...mono, marginTop: "2px" }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── RIGHT — Sign-in panel ──────────────────────────────────────── */}
+        <div className="flex-1 flex items-center justify-center px-6 py-16">
+          <div className="w-full max-w-md">
+
+            {/* Mobile logo */}
+            <div className="flex lg:hidden items-center gap-2 mb-10 justify-center">
+              <div className="w-8 h-8 rounded flex items-center justify-center"
+                style={{ border: `1px solid ${t.border}`, background: t.accentBg }}>
+                <span style={{ color: t.accent, fontSize: "0.9rem", fontWeight: 700 }}>C</span>
+              </div>
+              <span style={{ ...raj, fontWeight: 700, fontSize: "1.1rem", color: t.text, letterSpacing: "0.08em" }}>
+                CYBER<span style={{ color: t.accent }}>SHIELD</span>
+              </span>
+            </div>
+
+            {/* Card */}
+            <div className="rounded-lg overflow-hidden"
+              style={{ border: `1px solid ${t.border}`, background: isDark ? "rgba(6,182,212,0.02)" : "rgba(8,145,178,0.04)", boxShadow: `0 0 60px rgba(6,182,212,0.08)` }}>
+
+              {/* Card header */}
+              <div className="px-8 py-6" style={{ borderBottom: `1px solid ${t.border}` }}>
+                <p style={{ color: t.accent, fontSize: "0.6rem", letterSpacing: "0.2em", ...mono, marginBottom: "4px" }}>// SECURE ACCESS</p>
+                <h2 style={{ ...bebas, fontSize: "1.8rem", color: t.text, letterSpacing: "0.06em", lineHeight: 1 }}>
+                  SIGN IN TO YOUR <span style={{ color: t.accent }}>ACCOUNT</span>
+                </h2>
+              </div>
+
+              <div className="px-8 py-8 space-y-6">
+
+                {/* Google login wrapper */}
+                <div>
+                  <div
+                    style={{
+                      opacity: agreed ? 1 : 0.4,
+                      pointerEvents: agreed ? "auto" : "none",
+                      transition: "opacity 0.3s ease",
+                      filter: agreed ? "none" : "grayscale(60%)",
+                    }}
+                  >
+                    <GoogleLogin
+                      onSuccess={onLoginSuccess}
+                      onError={() => toast.error("Login Failed")}
+                      width="100%"
+                      text="signin_with"
+                      shape="rectangular"
+                      theme={isDark ? "filled_black" : "outline"}
+                    />
+                  </div>
+                  {!agreed && (
+                    <p style={{ color: isDark ? "#334155" : "#94a3b8", ...mono, fontSize: "0.6rem", textAlign: "center", marginTop: "6px", letterSpacing: "0.08em" }}>
+                      ↑ agree to terms below to enable sign-in
+                    </p>
+                  )}
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px" style={{ background: t.border }} />
+                  <span style={{ color: isDark ? "#334155" : "#94a3b8", ...mono, fontSize: "0.6rem", letterSpacing: "0.1em" }}>TERMS OF USE</span>
+                  <div className="flex-1 h-px" style={{ background: t.border }} />
+                </div>
+
+                {/* Disclaimer checkbox */}
+                <label className="flex items-start gap-3 group"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setAgreed(!agreed)}>
+
+                  {/* Custom checkbox */}
+                  <div className="shrink-0 mt-0.5 w-4 h-4 rounded flex items-center justify-center transition-all duration-200"
+                    style={{
+                      border: `1px solid ${agreed ? t.accent : isDark ? "#334155" : "#94a3b8"}`,
+                      background: agreed ? t.accentBg : "transparent",
+                      boxShadow: agreed ? `0 0 10px ${t.accent}44` : "none",
+                    }}>
+                    {agreed && (
+                      <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: t.accent }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+
+                  <p style={{ color: isDark ? "#475569" : "#475569", ...mono, fontSize: "0.65rem", lineHeight: 1.8, userSelect: "none" }}>
+                    {DISCLAIMER_TEXT}
+                  </p>
+                </label>
+
+                {/* Security note */}
+                <div className="flex items-center gap-2 px-3 py-2 rounded"
+                  style={{ border: `1px solid ${t.border}`, background: isDark ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.02)" }}>
+                  <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: t.accent }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <p style={{ color: isDark ? "#334155" : "#64748b", ...mono, fontSize: "0.6rem", letterSpacing: "0.05em" }}>
+                    Secured via Google OAuth · No passwords stored
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Back link */}
+            <div className="mt-6 text-center">
+              <Link to="/" style={{ color: isDark ? "#334155" : "#64748b", ...mono, fontSize: "0.65rem", letterSpacing: "0.1em", textDecoration: "none" }}
+                onMouseEnter={(e) => e.target.style.color = t.accent}
+                onMouseLeave={(e) => e.target.style.color = isDark ? "#334155" : "#64748b"}>
+                ← BACK TO HOME
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Layout ─────────────────────────────────────────────────────────────
 export default function Layout() {
   const { user, setUser, isAdmin, setIsAdmin, adminLogout, isDark, setIsDark, fontSize, setFontSize } = useAuth();
   const location = useLocation();
@@ -27,9 +219,8 @@ export default function Layout() {
   const [showPass,       setShowPass]       = useState(false);
   const modalRef = useRef(null);
 
-  // Suggestion state
   const [suggestion,       setSuggestion]       = useState("");
-  const [suggestionStatus, setSuggestionStatus] = useState(null); // null | "sending" | "sent" | "error"
+  const [suggestionStatus, setSuggestionStatus] = useState(null);
 
   useEffect(() => {
     const fn = (e) => {
@@ -52,7 +243,11 @@ export default function Layout() {
     finally { setHistoryLoading(false); }
   };
 
-  const handleLoginSuccess = (cr) => { const d = jwtDecode(cr.credential); setUser(d); toast.success(`Welcome ${d.name}`); };
+  const handleLoginSuccess = (cr) => {
+    const d = jwtDecode(cr.credential);
+    setUser(d);
+    toast.success(`Welcome ${d.name}`);
+  };
   const handleLogout = () => { googleLogout(); setUser(null); setHistory([]); setIsHistoryOpen(false); toast.success("Logged out"); };
 
   const handleAdminLogin = () => {
@@ -94,6 +289,19 @@ export default function Layout() {
   const raj   = { fontFamily: "'Rajdhani', sans-serif" };
   const bebas = { fontFamily: "'Bebas Neue', sans-serif" };
 
+  // ── Show sign-in gate when not authenticated ──────────────────────────────
+  if (!user) {
+    return (
+      <>
+        <Toaster position="top-right" toastOptions={{
+          style: { background: isDark ? "#0f172a" : "#f1f5f9", color: isDark ? "#e2e8f0" : "#0f172a", border: `1px solid ${t.border}`, fontFamily: "'DM Mono',monospace", fontSize: "0.75rem" }
+        }} />
+        <SignInGate isDark={isDark} onLoginSuccess={handleLoginSuccess} />
+      </>
+    );
+  }
+
+  // ── Main authenticated layout ─────────────────────────────────────────────
   return (
     <div style={{ background: t.bg, minHeight: "100vh", ...mono, transition: "background 0.35s ease" }}>
       <style>{cyberStyles}</style>
@@ -114,10 +322,10 @@ export default function Layout() {
           <Link to="/" className="flex items-center gap-2 shrink-0" style={{ textDecoration: "none" }}>
             <div className="w-7 h-7 rounded flex items-center justify-center"
               style={{ border: `1px solid ${t.border}`, background: t.accentBg }}>
-              <span style={{ color: t.accent, fontSize: "0.75rem", fontWeight: 700 }}>S</span>
+              <span style={{ color: t.accent, fontSize: "0.75rem", fontWeight: 700 }}>C</span>
             </div>
             <span style={{ ...raj, fontWeight: 700, fontSize: "1.1rem", color: t.text, letterSpacing: "0.06em" }}>
-              SHIELD<span style={{ color: t.accent }}>AI</span>
+              CYBER<span style={{ color: t.accent }}>SHIELD</span>
             </span>
           </Link>
 
@@ -254,14 +462,10 @@ export default function Layout() {
             )}
 
             {/* ── GOOGLE AUTH ─────────────────────────────────────── */}
-            {!user ? (
-              <GoogleLogin onSuccess={handleLoginSuccess} onError={() => toast.error("Login Failed")} />
-            ) : (
-              <div className="flex items-center gap-2">
-                <img src={user.picture} className="w-7 h-7 rounded-full" alt={user.name} style={{ border: `1px solid ${t.border}` }} />
-                <button onClick={handleLogout} className={`${t.btnClass} px-3 py-1.5 text-xs tracking-widest`}>LOGOUT</button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <img src={user.picture} className="w-7 h-7 rounded-full" alt={user.name} style={{ border: `1px solid ${t.border}` }} />
+              <button onClick={handleLogout} className={`${t.btnClass} px-3 py-1.5 text-xs tracking-widest`}>LOGOUT</button>
+            </div>
           </div>
         </div>
       </header>
@@ -363,7 +567,7 @@ export default function Layout() {
 
           {/* Bottom row */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <span style={{ ...raj, fontWeight: 700, fontSize: "1rem", color: t.text, letterSpacing: "0.06em" }}>SHIELD<span style={{ color: t.accent }}>AI</span></span>
+            <span style={{ ...raj, fontWeight: 700, fontSize: "1rem", color: t.text, letterSpacing: "0.06em" }}>CYBER<span style={{ color: t.accent }}>SHIELD</span></span>
             <nav className="flex gap-6">
               {navLinks.map(({ to, label }) => (
                 <Link key={to} to={to} className="nav-link" style={{ fontSize: "0.65rem", color: t.textMuted }}>{label}</Link>
