@@ -160,7 +160,7 @@ export default function Videos() {
                 {/* Info */}
                 <div className="p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 style={{ color: "#e2e8f0", ...raj, fontWeight: 700, fontSize: "0.85rem", lineHeight: 1.4, letterSpacing: "0.02em" }}>
+                    <h3 style={{ color: "#64748b", ...raj, fontWeight: 700, fontSize: "0.85rem", lineHeight: 1.4, letterSpacing: "0.02em" }}>
                       {v.title}
                     </h3>
                     <span className="shrink-0 px-2 py-0.5 rounded text-xs"

@@ -26,9 +26,9 @@ export const lightTokens = {
   bgInput:     "#f1f5f9",
   border:      "rgba(8,145,178,0.22)",
   borderHover: "rgba(8,145,178,0.55)",
-  text:        "#0f172a",        // slate-900 — primary text
-  textMuted:   "#1e293b",        // slate-800 — was #475569 (too light); now dark and readable
-  textDim:     "#334155",        // slate-700 — secondary/dim text; still clearly readable
+  text:        "#0f172a",
+  textMuted:   "#475569",
+  textDim:     "#94a3b8",
   accent:      "#0891b2",
   accentBg:    "rgba(8,145,178,0.08)",
   accentText:  "#0e7490",

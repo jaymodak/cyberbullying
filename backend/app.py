@@ -14,7 +14,6 @@ import io
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
 from dotenv import load_dotenv
 import os
 
@@ -27,7 +26,20 @@ GMAIL_PASS = os.getenv("GMAIL_PASS", "").strip().strip('"').strip("'")
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # ─── MongoDB ─────────────────────────────────────────────────────────────────
-client = MongoClient("mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGO_URI")
+print("DEBUG URI:", MONGO_URI)
+client = MongoClient("MONGO_URI")
+
+# debug code 
+
+try:
+    client.admin.command('ping')
+    print("✅ MongoDB Connected Successfully")
+except Exception as e:
+    print("❌ Connection Failed:", e)
+    exit()
+
+
 db = client["shieldai"]
 analysis_collection = db["analysis_history"]
 patterns_collection = db["patterns"]

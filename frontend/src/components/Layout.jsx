@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { cyberStyles, CyberCursor, darkTokens, lightTokens } from "../styles/cyber.jsx";
-
+import { useGoogleLogin } from "@react-oauth/google";
 const ADMIN_USER = "admin-cybd";
 const ADMIN_PASS = "cybd-ibsar";
 
@@ -18,7 +18,10 @@ const DISCLAIMER_TEXT =
 function SignInGate({ isDark, onLoginSuccess }) {
   const t = isDark ? darkTokens : lightTokens;
   const [agreed, setAgreed] = useState(false);
-
+  const login = useGoogleLogin({
+    onSuccess: onLoginSuccess,
+    onError: () => toast.error("Login Failed"),
+  });
   const mono  = { fontFamily: "'DM Mono', monospace" };
   const raj   = { fontFamily: "'Rajdhani', sans-serif" };
   const bebas = { fontFamily: "'Bebas Neue', sans-serif" };
@@ -124,14 +127,40 @@ function SignInGate({ isDark, onLoginSuccess }) {
                       filter: agreed ? "none" : "grayscale(60%)",
                     }}
                   >
-                    <GoogleLogin
-                      onSuccess={onLoginSuccess}
-                      onError={() => toast.error("Login Failed")}
-                      width="100%"
-                      text="signin_with"
-                      shape="rectangular"
-                      theme={isDark ? "filled_black" : "outline"}
+                  <div
+                    onClick={() => login()}
+                    className="w-full flex items-center justify-center gap-3 py-3 rounded-md cursor-pointer transition-all duration-300"
+                    style={{
+                      border: `1px solid ${t.border}`,
+                      background: "rgba(255,255,255,0.02)",
+                      backdropFilter: "blur(8px)",
+                      boxShadow: "0 0 20px rgba(6,182,212,0.08)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.border = `1px solid ${t.accent}`;
+                      e.currentTarget.style.boxShadow = "0 0 25px rgba(6,182,212,0.2)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.border = `1px solid ${t.border}`;
+                      e.currentTarget.style.boxShadow = "0 0 20px rgba(6,182,212,0.08)";
+                    }}
+                  >
+                    <img
+                      src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                      alt="google"
+                      className="w-5 h-5"
                     />
+                    <span
+                      style={{
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: "0.75rem",
+                        letterSpacing: "0.08em",
+                        color: t.text,
+                      }}
+                    >
+                      Sign in with Google
+                    </span>
+                  </div>
                   </div>
                   {!agreed && (
                     <p style={{ color: isDark ? "#334155" : "#94a3b8", ...mono, fontSize: "0.6rem", textAlign: "center", marginTop: "6px", letterSpacing: "0.08em" }}>
@@ -243,11 +272,23 @@ export default function Layout() {
     finally { setHistoryLoading(false); }
   };
 
-  const handleLoginSuccess = (cr) => {
-    const d = jwtDecode(cr.credential);
-    setUser(d);
-    toast.success(`Welcome ${d.name}`);
-  };
+  const handleLoginSuccess = async (tokenResponse) => {
+  try {
+    const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: {
+        Authorization: `Bearer ${tokenResponse.access_token}`,
+      },
+    });
+
+    const user = await res.json();
+
+    setUser(user);
+    toast.success(`Welcome ${user.name}`);
+  } catch (err) {
+    console.error(err);
+    toast.error("Login failed");
+  }
+};
   const handleLogout = () => { googleLogout(); setUser(null); setHistory([]); setIsHistoryOpen(false); toast.success("Logged out"); };
 
   const handleAdminLogin = () => {

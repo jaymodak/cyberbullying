@@ -362,7 +362,7 @@ export default function Landing() {
               <span className="text-cyan-400 text-sm font-bold">S</span>
             </div>
             <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#e2e8f0", letterSpacing: "0.05em" }}>
-              CYBER<span style={{ color: "#06b6d4" }}>SHIELD</span>
+              SHIELD<span style={{ color: "#06b6d4" }}>AI</span>
             </span>
           </div>
 
@@ -404,7 +404,7 @@ export default function Landing() {
         <div className="reveal mb-8 flex items-center gap-2 px-4 py-2 rounded-full text-xs tracking-widest"
           style={{ border: "1px solid rgba(6,182,212,0.3)", background: "rgba(6,182,212,0.05)", color: "#67e8f9", fontFamily: "'DM Mono', monospace" }}>
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          CYBERBULLYING DETECTION
+          AI-POWERED CYBERBULLYING DETECTION
         </div>
 
         {/* Main headline */}
