@@ -28,7 +28,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 # ─── MongoDB ─────────────────────────────────────────────────────────────────
 MONGO_URI = os.getenv("MONGO_URI")
 print("DEBUG URI:", MONGO_URI)
-client = MongoClient("MONGO_URI")
+client = MongoClient(MONGO_URI)
 
 # debug code 
 

@@ -320,7 +320,25 @@ export default function Home() {
     const fd = new FormData(); fd.append("image", imageFile);
     try {
       const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/ocr`, { method: "POST", body: fd });
-      const data = await res.json();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: analyzeText,
+          platform,
+          user_email: user?.email || null
+        }),
+      });
+
+      // ✅ ADD THIS BLOCK HERE
+      if (!response.ok) {
+        const errorText = await response.text(); // get raw response (HTML or error)
+        console.error("Backend error:", errorText);
+        throw new Error("Server error — check backend");
+      }
+
+      // ✅ THEN parse JSON
+      const data = await response.json();
       toast.success("Analysis complete");
       if (!res.ok) throw new Error(data.error || "OCR failed");
       setExtractedText(data.text || ""); setOcrDone(true);
