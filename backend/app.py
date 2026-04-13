@@ -23,7 +23,8 @@ GMAIL_USER = os.getenv("GMAIL_USER", "").strip().strip('"').strip("'")
 GMAIL_PASS = os.getenv("GMAIL_PASS", "").strip().strip('"').strip("'")
 
 # ─── Tesseract path (Windows) ────────────────────────────────────────────────
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # ─── MongoDB ─────────────────────────────────────────────────────────────────
 MONGO_URI = os.getenv("MONGO_URI")
@@ -646,4 +647,4 @@ def delete_pattern(pattern_id):
 # 🚨 ALWAYS LAST
 if __name__ == "__main__":
     print(f"📧 Email configured: {'YES (' + GMAIL_USER + ')' if GMAIL_USER else 'NO — set GMAIL_USER & GMAIL_PASS in .env'}")
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", port=7860)
