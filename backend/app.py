@@ -368,27 +368,26 @@ def extract_text_from_image():
 
 @app.route('/api/send-safety-email', methods=['POST'])
 def send_safety_email():
-    # ── Validate config ───────────────────────────────────────────────────────
-    if not GMAIL_USER or not GMAIL_PASS:
-        print("❌ EMAIL CONFIG: GMAIL_USER or GMAIL_PASS not set in .env")
-        return jsonify({"error": "Email service not configured. Check GMAIL_USER and GMAIL_PASS in .env"}), 503
+# ── Validate config ───────────────────────────────────────────────────────
+    if not RESEND_API_KEY:
+        print("❌ EMAIL CONFIG: RESEND_API_KEY not set in .env")
 
+        return jsonify({
+            "error": "Email service not configured. Check RESEND_API_KEY in .env"
+        }), 503
     try:
-        data  = request.json or {}
+        data = request.json or {}
+
         email = (data.get("email") or "").strip()
-        name  = (data.get("name")  or "User").strip()
-        text  = (data.get("text")  or "").strip()
+        name  = (data.get("name") or "User").strip()
+        text  = (data.get("text") or "").strip()
 
         if not email:
-            return jsonify({"error": "No recipient email provided"}), 400
+            return jsonify({
+                "error": "No recipient email provided"
+            }), 400
 
-        print(f"📧 Sending safety email to: {email} from: {GMAIL_USER}")
-
-        # ── Build MIME message ────────────────────────────────────────────────
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = "CyberShield — Safety Warning"
-        msg["From"]    = f"CyberShield Safety <{GMAIL_USER}>"
-        msg["To"]      = email
+        print(f"📧 Sending safety email to: {email}")
 
         plain_body = f"""Hi {name},
 
@@ -398,177 +397,62 @@ Our AI detected potentially harmful language in a message analyzed on CyberShiel
 
 Please consider rewriting your message to be more respectful.
 
-— CyverShield Safety System
+— CyberShield Safety System
 """
 
         html_body = f"""
-<html><body style="font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0;padding:32px;">
+<html>
+<body style="font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0;padding:32px;">
   <div style="max-width:560px;margin:auto;background:#1e293b;border-radius:12px;padding:32px;border:1px solid rgba(6,182,212,0.3);">
-    <h2 style="color:#06b6d4;margin-top:0;">⚠ CyberShield Safety Warning</h2>
+
+    <h2 style="color:#06b6d4;margin-top:0;">
+      ⚠ CyberShield Safety Warning
+    </h2>
+
     <p>Hi <strong>{name}</strong>,</p>
-    <p>We detected potentially harmful language in a message you analyzed:</p>
+
+    <p>
+      We detected potentially harmful language in a message you analyzed:
+    </p>
+
     <blockquote style="border-left:3px solid #ef4444;padding:12px 16px;background:rgba(239,68,68,0.08);border-radius:4px;margin:16px 0;">
       <em style="color:#fca5a5;">"{text}"</em>
     </blockquote>
+
     <p>Please consider reviewing your message.</p>
+
     <hr style="border-color:rgba(6,182,212,0.2);margin:24px 0;">
-    <p style="font-size:12px;color:#64748b;">— CyberShield Safety System &nbsp;|&nbsp; Cyberbullying Detection Platform</p>
+
+    <p style="font-size:12px;color:#64748b;">
+      — CyberShield Safety System | Cyberbullying Detection Platform
+    </p>
+
   </div>
-</body></html>
+</body>
+</html>
 """
 
-        msg.attach(MIMEText(plain_body, "plain"))
-        msg.attach(MIMEText(html_body,  "html"))
+        resend.Emails.send({
+            "from": "CyberShield <onboarding@resend.dev>",
+            "to": [email],
+            "subject": "CyberShield — Safety Warning",
+            "html": html_body,
+            "text": plain_body
+        })
 
-        # ── Try SMTP_SSL (port 465) first, then STARTTLS (port 587) ──────────
-        sent = False
-        last_error = None
+        print(f"✅ Email sent successfully to {email}")
 
-        try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
-                server.login(GMAIL_USER, GMAIL_PASS)
-                server.sendmail(GMAIL_USER, [email], msg.as_string())
-                sent = True
-                print(f"✅ Email sent via SMTP_SSL to {email}")
-        except Exception as ssl_err:
-            last_error = ssl_err
-            print(f"⚠ SMTP_SSL failed ({ssl_err}), trying STARTTLS on port 587...")
-
-        if not sent:
-            try:
-                with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
-                    server.ehlo()
-                    server.starttls()
-                    server.ehlo()
-                    server.login(GMAIL_USER, GMAIL_PASS)
-                    server.sendmail(GMAIL_USER, [email], msg.as_string())
-                    sent = True
-                    print(f"✅ Email sent via STARTTLS to {email}")
-            except Exception as tls_err:
-                last_error = tls_err
-                print(f"❌ STARTTLS also failed: {tls_err}")
-
-        if not sent:
-            raise last_error
-
-        return jsonify({"status": "sent", "to": email})
-
-    except smtplib.SMTPAuthenticationError:
-        msg_text = (
-            "Gmail authentication failed. "
-            "Make sure GMAIL_PASS is a 16-character App Password "
-            "(not your regular Gmail password). "
-            "Enable 2FA then generate one at myaccount.google.com/apppasswords."
-        )
-        print(f"❌ {msg_text}")
-        return jsonify({"error": msg_text}), 401
-
-    except smtplib.SMTPRecipientsRefused:
-        return jsonify({"error": f"Recipient address refused: {email}"}), 400
+        return jsonify({
+            "status": "sent",
+            "to": email
+        })
 
     except Exception as e:
         print(f"❌ EMAIL ERROR: {type(e).__name__}: {e}")
-        return jsonify({"error": f"Email failed: {str(e)}"}), 500
 
-
-# ─── History endpoint ─────────────────────────────────────────────────────────
-@app.route('/api/history', methods=['GET'])
-def get_history():
-    try:
-        email = request.args.get('email')
-        if not email:
-            return jsonify({'error': 'No email provided'}), 400
-
-        records = list(
-            analysis_collection
-            .find({"user_email": email}, {"_id": 0})
-            .sort("timestamp", -1)
-            .limit(50)   # increased from 20 so download has more data
-        )
-
-        for r in records:
-            if "timestamp" in r and hasattr(r["timestamp"], "isoformat"):
-                r["timestamp"] = r["timestamp"].isoformat()
-
-        return jsonify({"history": records})
-    except Exception as e:
-        print(f"HISTORY ERROR: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/history/clear', methods=['DELETE'])
-def clear_history():
-    try:
-        data  = request.get_json() or {}
-        email = (data.get('email') or '').strip()
-        if not email:
-            return jsonify({'error': 'No email provided'}), 400
-        result = analysis_collection.delete_many({"user_email": email})
-        print(f"✅ Cleared {result.deleted_count} records for {email}")
-        return jsonify({'status': 'success', 'deleted': result.deleted_count})
-    except Exception as e:
-        print(f"CLEAR HISTORY ERROR: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-# ─── Suggestions endpoints ────────────────────────────────────────────────────
-@app.route('/api/suggestions', methods=['POST'])
-def add_suggestion():
-    try:
-        data  = request.get_json() or {}
-        text  = (data.get('text')  or '').strip()
-        email = (data.get('email') or '').strip()
-        if not text:
-            return jsonify({'error': 'Suggestion text cannot be empty'}), 400
-        suggestions_collection.insert_one({
-            "text":      text,
-            "email":     email or "anonymous",
-            "timestamp": datetime.now(timezone.utc),
-        })
-        return jsonify({'status': 'success'})
-    except Exception as e:
-        print(f"SUGGESTION ERROR: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/admin/suggestions', methods=['GET'])
-def get_suggestions():
-    try:
-        docs = list(suggestions_collection.find({}, {"_id": 0}).sort("timestamp", -1))
-        for d in docs:
-            if "timestamp" in d and hasattr(d["timestamp"], "isoformat"):
-                d["timestamp"] = d["timestamp"].isoformat()
-        return jsonify({'suggestions': docs, 'count': len(docs)})
-    except Exception as e:
-        print(f"GET SUGGESTIONS ERROR: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/debug-analyze', methods=['POST'])
-def debug_analyze():
-    data = request.get_json()
-    text = data.get('text', '')
-    detect_social_media_patterns(text, 'general')
-    return jsonify({
-        "text":            text,
-        "toxic_bert":      round(predict_toxic_bert(text), 4),
-        "twitter_roberta": round(predict_twitter_roberta(text), 4),
-        "zero_shot":       round(predict_zero_shot(text), 4),
-    })
-
-
-from bson import ObjectId
-
-# ── GET all patterns ──────────────────────────────────────────────────────────
-@app.route('/api/admin/patterns', methods=['GET'])
-def get_patterns():
-    try:
-        docs = list(patterns_collection.find())
-        for doc in docs:
-            doc['_id'] = str(doc['_id'])
-        return jsonify({'patterns': docs, 'count': len(docs)})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            "error": f"Email failed: {str(e)}"
+        }), 500
 
 
 # ── POST — insert one or many patterns ───────────────────────────────────────
@@ -644,5 +528,5 @@ def delete_pattern(pattern_id):
 
 # 🚨 ALWAYS LAST
 if __name__ == "__main__":
-    print(f"📧 Email configured: {'YES (' + GMAIL_USER + ')' if GMAIL_USER else 'NO — set GMAIL_USER & GMAIL_PASS in .env'}")
+    print(f"📧 Resend configured: {'YES' if RESEND_API_KEY else 'NO'}")
     app.run(host="0.0.0.0", port=7860)
