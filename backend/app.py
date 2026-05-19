@@ -635,6 +635,34 @@ def submit_suggestion():
             "error": str(e)
         }), 500
     
+@app.route('/api/history/clear', methods=['DELETE'])
+def clear_history():
+    try:
+        data = request.get_json()
+
+        email = data.get("email")
+
+        if not email:
+            return jsonify({
+                "error": "No email provided"
+            }), 400
+
+        result = analysis_collection.delete_many({
+            "user_email": email
+        })
+
+        return jsonify({
+            "status": "success",
+            "deleted": result.deleted_count
+        })
+
+    except Exception as e:
+        print(f"CLEAR HISTORY ERROR: {e}")
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+    
 # 🚨 ALWAYS LAST
 if __name__ == "__main__":
     print(f"📧 Resend configured: {'YES' if RESEND_API_KEY else 'NO'}")
