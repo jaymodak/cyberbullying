@@ -578,6 +578,63 @@ def get_history():
             'error': str(e)
         }), 500
 
+@app.route('/api/admin/suggestions', methods=['GET'])
+def get_suggestions():
+    try:
+        docs = list(
+            suggestions_collection
+            .find({})
+            .sort("timestamp", -1)
+        )
+
+        for d in docs:
+            d["_id"] = str(d["_id"])
+
+            if "timestamp" in d and hasattr(d["timestamp"], "isoformat"):
+                d["timestamp"] = d["timestamp"].isoformat()
+
+        return jsonify({
+            "suggestions": docs,
+            "count": len(docs)
+        })
+
+    except Exception as e:
+        print(f"GET SUGGESTIONS ERROR: {e}")
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+@app.route('/api/suggestions', methods=['POST'])
+def submit_suggestion():
+    try:
+        data = request.get_json()
+
+        text = (data.get("text") or "").strip()
+        email = (data.get("email") or "").strip()
+
+        if not text:
+            return jsonify({
+                "error": "Suggestion text required"
+            }), 400
+
+        suggestions_collection.insert_one({
+            "text": text,
+            "email": email,
+            "timestamp": datetime.now(timezone.utc)
+        })
+
+        return jsonify({
+            "status": "success"
+        })
+
+    except Exception as e:
+        print(f"SUGGESTION ERROR: {e}")
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+    
 # 🚨 ALWAYS LAST
 if __name__ == "__main__":
     print(f"📧 Resend configured: {'YES' if RESEND_API_KEY else 'NO'}")
