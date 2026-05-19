@@ -11,16 +11,14 @@ from datetime import datetime, timezone
 from PIL import Image
 import pytesseract
 import io
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import resend
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-GMAIL_USER = os.getenv("GMAIL_USER", "").strip().strip('"').strip("'")
-GMAIL_PASS = os.getenv("GMAIL_PASS", "").strip().strip('"').strip("'")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+resend.api_key = RESEND_API_KEY
 
 # ─── Tesseract path (Windows) ────────────────────────────────────────────────
 if os.name == "nt":
