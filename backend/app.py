@@ -524,7 +524,38 @@ def delete_pattern(pattern_id):
     except Exception as e:
         print(f"DELETE PATTERN ERROR: {e}")
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    try:
+        email = request.args.get('email')
 
+        if not email:
+            return jsonify({
+                'error': 'No email provided'
+            }), 400
+
+        records = list(
+            analysis_collection
+            .find({"user_email": email}, {"_id": 0})
+            .sort("timestamp", -1)
+            .limit(50)
+        )
+
+        for r in records:
+            if "timestamp" in r and hasattr(r["timestamp"], "isoformat"):
+                r["timestamp"] = r["timestamp"].isoformat()
+
+        return jsonify({
+            "history": records
+        })
+
+    except Exception as e:
+        print(f"HISTORY ERROR: {e}")
+
+        return jsonify({
+            'error': str(e)
+        }), 500
 
 # 🚨 ALWAYS LAST
 if __name__ == "__main__":
