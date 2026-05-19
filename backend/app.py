@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from pymongo import MongoClient
+from bson import ObjectId
 from datetime import datetime, timezone
 from PIL import Image
 import pytesseract
@@ -14,6 +15,7 @@ import io
 import resend
 from dotenv import load_dotenv
 import os
+
 
 load_dotenv()
 
@@ -265,6 +267,25 @@ def run_full_analysis(text, platform="general"):
         "bullying_types":   list(bullying_types)
     }
 
+@app.route('/api/admin/patterns', methods=['GET'])
+def get_patterns():
+    try:
+        docs = list(patterns_collection.find())
+
+        for doc in docs:
+            doc['_id'] = str(doc['_id'])
+
+        return jsonify({
+            'patterns': docs,
+            'count': len(docs)
+        })
+
+    except Exception as e:
+        print(f"GET PATTERNS ERROR: {e}")
+
+        return jsonify({
+            'error': str(e)
+        }), 500
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
 @app.route('/api/analyze', methods=['POST'])
