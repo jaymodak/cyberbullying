@@ -315,36 +315,40 @@ export default function Home() {
   }, []);
 
   const handleExtract = async () => {
-    if (!imageFile) return;
-    setOcrLoading(true); setExtractedText("");
-    const fd = new FormData(); fd.append("image", imageFile);
-    try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/ocr`, { method: "POST", body: fd });
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/analyze`, {
+  if (!imageFile) return;
+
+  setOcrLoading(true);
+  setExtractedText("");
+
+  const fd = new FormData();
+  fd.append("image", imageFile);
+
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/ocr`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: analyzeText,
-          platform,
-          user_email: user?.email || null
-        }),
-      });
-
-      // ✅ ADD THIS BLOCK HERE
-      if (!response.ok) {
-        const errorText = await response.text(); // get raw response (HTML or error)
-        console.error("Backend error:", errorText);
-        throw new Error("Server error — check backend");
+        body: fd,
       }
+    );
 
-      // ✅ THEN parse JSON
-      const data = await response.json();
-      toast.success("Analysis complete");
-      if (!res.ok) throw new Error(data.error || "OCR failed");
-      setExtractedText(data.text || ""); setOcrDone(true);
-    } catch (err) { alert(`OCR failed: ${err.message}`); }
-    finally { setOcrLoading(false); }
-  };
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "OCR failed");
+    }
+
+    setExtractedText(data.text || "");
+    setOcrDone(true);
+
+    toast.success("Text extracted successfully");
+
+  } catch (err) {
+    alert(`OCR failed: ${err.message}`);
+  } finally {
+    setOcrLoading(false);
+  }
+};
 
   const handleAnalyze = async (e) => {
     e?.preventDefault();
