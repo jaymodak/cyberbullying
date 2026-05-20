@@ -362,7 +362,7 @@ export default function Landing() {
               <span className="text-cyan-400 text-sm font-bold">S</span>
             </div>
             <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#e2e8f0", letterSpacing: "0.05em" }}>
-              SHIELD<span style={{ color: "#06b6d4" }}>AI</span>
+              CYBERSHIELD
             </span>
           </div>
 
