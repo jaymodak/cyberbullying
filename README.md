@@ -1,96 +1,93 @@
-# 🛡️ ShieldAI — AI-Powered Cyberbullying Detection
+# CyberShield — AI Cyberbullying Detection Platform
 
-> Built by **Sameer Kumar** & **Jay Modak**
+CyberShield is a full-stack web application that detects cyberbullying and toxic language using a multi-model AI ensemble. Paste a message, upload a screenshot, pick a platform, and get a real-time verdict with a breakdown of exactly why the content was flagged.
 
-ShieldAI is a full-stack web application that uses an ensemble of machine learning models to detect cyberbullying, online harassment, and toxic language in real time. It supports text input, screenshot OCR, multi-platform analysis, and personalized safety alerts.
-
----
-
-## ✨ Features
-
-- **Triple ML Model Ensemble** — toxic-bert + twitter-roberta + zero-shot NLI working in parallel
-- **Screenshot OCR** — upload a social media screenshot, extract the text, and analyze it
-- **Multi-Platform Aware** — context-tuned detection for Facebook, Twitter/X, Instagram, and general text
-- **Zero-Shot Classification** — catches sarcasm, social exclusion, and indirect bullying that keyword filters miss
-- **Safety Email Alerts** — automatically emails logged-in users when high-severity content is detected
-- **Analysis History** — Google OAuth login lets users view their past analyses in a dropdown
-- **Dark Cyber UI** — consistent dark aesthetic with scroll animations and cursor effects across all pages
-- **Educational Resources** — laws, crisis helplines, support tools, and awareness videos
+Built as a personal project to explore how transformer models perform on real-world toxic content — and to make something actually useful out of it.
 
 ---
 
-## 🧠 How Detection Works
+## What it does
 
-```
-Input Text / Screenshot
-        ↓
-   Rule Engine (MongoDB keyword patterns)
-        ↓
-   toxic-bert          ← explicit slurs, threats, hate speech
-   twitter-roberta     ← subtle social media bullying (trained on 58M tweets)
-   zero-shot NLI       ← sarcasm, exclusion, indirect harassment
-        ↓
-   Weighted Ensemble Score
-   (rule × 0.1 + toxic × 0.3 + roberta × 0.3 + zeroshot × 0.4)
-        ↓
-   Verdict: Safe / Suspicious / Cyberbullying
-```
+- Analyzes text for cyberbullying, harassment, and toxic language
+- Runs **three transformer models in parallel** and combines their scores with a custom rule-based engine
+- Supports **OCR** — upload a screenshot and it'll extract the text for you
+- Platform-aware analysis (Instagram, Twitter/X, YouTube, WhatsApp, etc.)
+- Sends a **safety warning email** to the user via Resend if harmful content is detected
+- Stores analysis history per user (tied to Google login)
+- Admin panel to manage the keyword pattern database (CRUD)
+- User suggestion system so anyone can flag missing patterns
 
 ---
 
-## 🗂️ Project Structure
+## Tech Stack
 
-```
-shieldai/
-├── frontend/                   # React + Vite
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Landing.jsx     # Hero landing page
-│   │   │   ├── Home.jsx        # Main analyzer
-│   │   │   ├── Resources.jsx   # Crisis resources
-│   │   │   ├── Laws.jsx        # Cyberbullying laws
-│   │   │   └── Videos.jsx      # Educational videos
-│   │   ├── components/
-│   │   │   └── Layout.jsx      # Header + footer + history
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx # Shared user + theme state
-│   │   ├── styles/
-│   │   │   └── cyber.jsx       # Shared design system
-│   │   └── App.jsx
-│   ├── .env                    # ← NOT committed (see below)
-│   └── vite.config.js
-│
-└── backend/                    # Flask + Python
-    ├── app.py                  # API server
-    ├── .env                    # ← NOT committed (see below)
-    └── requirements.txt
-```
+**Frontend**
+- React + Vite
+- Tailwind CSS
+- React Router v6
+- Google OAuth (`@react-oauth/google`)
+
+**Backend**
+- Python / Flask
+- Hugging Face Transformers (3 models — see below)
+- NLTK (preprocessing, lemmatization)
+- PyTesseract (OCR)
+- MongoDB (via PyMongo)
+- Resend (transactional email)
 
 ---
 
-## 🚀 Getting Started
+## The AI Engine
+
+The backend runs four detection layers and combines them into a single final score:
+
+| Layer | Model / Method | Weight |
+|---|---|---|
+| Rule-based | Custom keyword DB + sentiment indicators | ~30% |
+| toxic-bert | `unitary/toxic-bert` | 30% |
+| twitter-roberta | `cardiffnlp/twitter-roberta-base-offensive` | 30% |
+| Zero-shot | `cross-encoder/nli-MiniLM2-L6-H768` | 40% |
+
+The zero-shot model classifies against labels like `cyberbullying`, `harassment`, `social exclusion`, `mocking someone`, and `safe conversation` — which means it can catch things the other models miss without needing explicit training on those labels.
+
+Final score thresholds:
+- `< 0.3` → **Safe**
+- `0.3 – 0.6` → **Suspicious**
+- `> 0.6` → **Cyberbullying / High Severity**
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- Python 3.9+
-- MongoDB (running locally on port 27017)
-- Tesseract OCR installed ([Windows installer](https://github.com/UB-Mannheim/tesseract/wiki))
+- Python 3.10+
+- MongoDB Atlas account (or local MongoDB)
+- Tesseract OCR installed on your machine
+- A Resend account (for emails)
+- Google OAuth Client ID
 
 ---
 
-### Frontend Setup
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/your-username/cybershield.git
+cd cybershield
+```
+
+### 2. Frontend setup
 
 ```bash
 cd frontend
 npm install
 ```
 
-Create a `.env` file in the `frontend/` folder:
+Create a `.env` file inside `frontend/`:
 
 ```env
-VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id_here
-VITE_API_URL=http://localhost:5000
+VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 ```
 
 Start the dev server:
@@ -99,23 +96,21 @@ Start the dev server:
 npm run dev
 ```
 
----
-
-### Backend Setup
+### 3. Backend setup
 
 ```bash
-cd backend
+cd ../backend
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the `backend/` folder:
+Create a `.env` file inside `backend/`:
 
 ```env
-GMAIL_USER=your_gmail@gmail.com
-GMAIL_PASS=your_app_password_here
+MONGO_URI=your_mongodb_connection_string
+RESEND_API_KEY=your_resend_api_key
 ```
 
-> **Gmail App Password:** Go to Google Account → Security → 2-Step Verification → App Passwords. Generate one for "Mail".
+On Windows, make sure Tesseract is installed at `C:\Program Files\Tesseract-OCR\tesseract.exe` (the default path). On Linux/macOS, just install it via your package manager and it'll be picked up automatically.
 
 Start the Flask server:
 
@@ -123,107 +118,92 @@ Start the Flask server:
 python app.py
 ```
 
-The API runs on `http://localhost:5000`.
+The backend runs on port `7860` by default.
 
 ---
 
-### First Run — Model Downloads
+## API Endpoints
 
-On first startup, the backend will automatically download the ML models from HuggingFace:
-
-| Model | Size | Purpose |
+| Method | Endpoint | Description |
 |---|---|---|
-| `unitary/toxic-bert` | ~440MB | Explicit toxicity, slurs, hate speech |
-| `cardiffnlp/twitter-roberta-base-offensive` | ~480MB | Social media bullying |
-| `cross-encoder/nli-MiniLM2-L6-H768` | ~80MB | Zero-shot: sarcasm & exclusion |
-
-Models are cached locally after the first download.
-
----
-
-## 🌐 API Endpoints
-
-| Method | Route | Description |
-|---|---|---|
-| `POST` | `/api/analyze` | Run full ensemble analysis on text |
-| `POST` | `/api/ocr` | Extract text from uploaded image |
-| `GET`  | `/api/history?email=` | Fetch user's analysis history |
-| `POST` | `/api/send-safety-email` | Send safety alert email |
-| `GET`  | `/api/health` | Server health check |
+| GET | `/api/health` | Health check |
+| POST | `/api/analyze` | Analyze text (main endpoint) |
+| POST | `/api/analyze/social-media` | Platform-specific analysis |
+| POST | `/api/ocr` | Extract text from image |
+| POST | `/api/send-safety-email` | Send warning email |
+| GET | `/api/history?email=` | Get user's analysis history |
+| DELETE | `/api/history/clear` | Clear user's history |
+| POST | `/api/suggestions` | Submit a pattern suggestion |
+| GET | `/api/admin/suggestions` | View all suggestions (admin) |
+| GET | `/api/admin/patterns` | Get all keyword patterns |
+| POST | `/api/admin/patterns` | Add new patterns |
+| PUT | `/api/admin/patterns/:id` | Update a pattern |
+| DELETE | `/api/admin/patterns/:id` | Delete a pattern |
 
 ---
 
-## 🔑 Environment Variables
+## Project Structure
 
-### Frontend — `frontend/.env`
-
-| Variable | Description |
-|---|---|
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth 2.0 Client ID |
-| `VITE_API_URL` | Backend URL (default: `http://localhost:5000`) |
-
-### Backend — `backend/.env` *(recommended)*
-
-| Variable | Description |
-|---|---|
-| `GMAIL_USER` | Gmail address for sending safety emails |
-| `GMAIL_PASS` | Gmail App Password (not your login password) |
-
----
-
-## 🛠️ Tech Stack
-
-**Frontend**
-- React 18 + Vite
-- React Router v6
-- TailwindCSS
-- @react-oauth/google
-- react-hot-toast
-
-**Backend**
-- Flask + Flask-CORS
-- HuggingFace Transformers (PyTorch)
-- MongoDB + PyMongo
-- Pytesseract + Pillow (OCR)
-- NLTK
-
----
-
-## 📦 Backend Dependencies
-
-```txt
-flask
-flask-cors
-transformers
-torch
-pymongo
-pytesseract
-Pillow
-nltk
-sentence-transformers
-python-dotenv
 ```
-
-Install all:
-```bash
-pip install flask flask-cors transformers torch pymongo pytesseract Pillow nltk sentence-transformers python-dotenv
+cybershield/
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Landing.jsx
+│   │   │   ├── Home.jsx          # Main analysis page
+│   │   │   ├── Resources.jsx
+│   │   │   ├── Laws.jsx
+│   │   │   ├── Videos.jsx
+│   │   │   └── Admin.jsx
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── styles/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   ├── index.html
+│   ├── .env                      # VITE_GOOGLE_CLIENT_ID (not committed)
+│   ├── package.json
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   └── vite.config.js
+└── backend/
+    ├── app.py
+    └── .env                      # MONGO_URI, RESEND_API_KEY (not committed)
 ```
 
 ---
 
-## 🔒 Security Notes
+## Environment Variables
 
-- Never commit `.env` files — both are listed in `.gitignore`
-- Rotate your Google OAuth client ID if it was ever pushed to a public repo
-- Use Gmail App Passwords, never your actual Gmail login password
-- MongoDB runs locally with no auth by default — add auth before any production deployment
+Never commit your `.env` files. Here's a summary of what you need:
+
+**`frontend/.env`**
+```
+VITE_GOOGLE_CLIENT_ID=
+```
+
+**`backend/.env`**
+```
+MONGO_URI=
+RESEND_API_KEY=
+```
+
+Both files are already in `.gitignore` (or should be — double check before pushing).
 
 ---
 
-## 📄 License
+## Known Limitations
 
-This project was built for educational purposes as part of a student project on AI safety and cyberbullying prevention.
+- The three transformer models are loaded at startup, so the backend takes ~30–60 seconds to boot cold depending on your machine
+- OCR accuracy depends heavily on image quality — blurry screenshots will give noisy results
+- The zero-shot model can occasionally be over-sensitive with very short inputs (1–3 words)
+- Email sending requires a verified sender domain on Resend in production (the `onboarding@resend.dev` address only works in sandbox mode)
+
+
 
 ---
 
-*ShieldAI — Detect. Protect. Act.*
+## License
+
+MIT — do whatever you want with it, just don't use it to build something that causes the harm it's designed to detect.
